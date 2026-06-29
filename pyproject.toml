@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+exclude = [
+    ".venv",
+    "data",
+    "outputs",
+    "__pycache__"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "B",
+    "UP"
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
