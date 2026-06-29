@@ -1,0 +1,9 @@
+pandas
+pyarrow
+pyyaml
+python-dotenv
+sqlalchemy
+psycopg2-binary
+pyspark
+great-expectations
+jupyter

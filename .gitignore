@@ -1,0 +1,26 @@
+# Entorno virtual
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Variables de entorno
+.env
+
+# Datos locales
+data/landing/*
+data/bronze/*
+data/silver/*
+data/gold/*
+
+# Outputs generados
+outputs/reports/*
+outputs/quality/*
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Archivos temporales
+*.log
+.DS_Store
