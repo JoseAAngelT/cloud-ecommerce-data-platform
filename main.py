@@ -1,4 +1,5 @@
 from src.ingest.ingest_bronze import ingest_csv_to_bronze
+from src.transform.gold_transformations import run_gold_transformations
 from src.transform.silver_transformations import run_silver_transformations
 from src.utils.config import load_config
 
@@ -12,6 +13,7 @@ def main() -> None:
 
     ingest_csv_to_bronze(config)
     run_silver_transformations(config)
+    run_gold_transformations(config)
 
     print("Pipeline finalizado correctamente.")
 

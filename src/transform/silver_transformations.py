@@ -215,7 +215,7 @@ def clean_products(
             "product_description_lenght",
             "product_photos_qty",
             "product_weight_g",
-            "product_lenght_cm",
+            "product_length_cm",
             "product_height_cm",
             "product_width_cm",
         ],
@@ -271,7 +271,7 @@ def run_silver_transformations(config: dict[str, Any]) -> dict[str, int]:
     geolocation = _read_bronze_table(bronze_path, "geolocation")
     orders = _read_bronze_table(bronze_path, "orders")
     order_items = _read_bronze_table(bronze_path, "order_items")
-    order_payments = _read_bronze_table(bronze_path, "order_reviews")
+    order_payments = _read_bronze_table(bronze_path, "order_payments")
     order_reviews = _read_bronze_table(bronze_path, "order_reviews")
     products = _read_bronze_table(bronze_path, "products")
     sellers = _read_bronze_table(bronze_path, "sellers")
