@@ -289,7 +289,12 @@ def build_agg_sales_by_category(
     """Construye ventas agregadas por categorias de producto."""
 
     sales = order_items.merge(
-        products[["product_id", "product_category_name_english"]],
+        products[
+            [
+                "product_id",
+                "product_category_name_english",
+            ]
+        ],
         on="product_id",
         how="left",
     )
@@ -301,7 +306,7 @@ def build_agg_sales_by_category(
     sales["total_sales"] = sales["price"] + sales["freight_value"]
 
     agg_sales_by_category = (
-        sales.groupby("product_category_name_english", as_index=True)
+        sales.groupby("product_category_name_english", as_index=False)
         .agg(
             total_orders=("order_id", "nunique"),
             total_items=("order_item_id", "count"),
@@ -311,6 +316,7 @@ def build_agg_sales_by_category(
             avg_item_price=("price", "mean"),
         )
         .sort_values("total_sales", ascending=False)
+        .reset_index(drop=True)
     )
 
     return agg_sales_by_category
