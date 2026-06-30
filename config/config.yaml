@@ -22,3 +22,21 @@ bronze:
     products: olist_products_dataset.csv
     sellers: olist_sellers_dataset.csv
     product_category_translation: product_category_name_translation.csv
+
+serving:
+  postgres_schema: ecommerce_gold
+  gold_tables:
+    - dim_customers
+    - dim_products
+    - dim_sellers
+    - dim_date
+    - fact_orders
+    - fact_order_items
+    - fact_payments
+    - fact_reviews
+    - fact_delivery
+    - agg_sales_by_month
+    - agg_sales_by_category
+    - agg_delivery_performance
+    - agg_seller_performance
+    - agg_customer_satisfaction

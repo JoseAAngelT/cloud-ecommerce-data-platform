@@ -1,4 +1,5 @@
 from src.ingest.ingest_bronze import ingest_csv_to_bronze
+from src.load.load_gold_to_postgres import load_gold_to_postgres
 from src.quality.data_quality_checks import run_basic_quality_checks
 from src.quality.gx_validations import run_gx_validations
 from src.transform.gold_transformations import run_gold_transformations
@@ -29,6 +30,8 @@ def main() -> None:
         basic_quality_report=basic_quality_report,
         gx_quality_report=gx_quality_report,
     )
+
+    load_gold_to_postgres(config)
 
     print("Pipeline finalizado correctamente.")
 
