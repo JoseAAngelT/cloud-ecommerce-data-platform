@@ -230,6 +230,13 @@ def run_gold_transformations(config: dict[str, Any]) -> dict[str, int]:
         "fact_payments": build_fact_payments(order_payments),
         "fact_reviews": build_fact_reviews(order_reviews),
         "fact_delivery": build_fact_delivery(orders),
+        "agg_sales_by_month": build_agg_sales_by_month(orders, order_items),
+        "agg_sales_by_category": build_agg_sales_by_category(order_items, products),
+        "agg_delivery_performance": build_agg_delivery_performance(orders),
+        "agg_seller_performance": build_agg_seller_performance(order_items, sellers),
+        "agg_customer_satisfaction": build_agg_customer_satisfaction(
+            orders, order_reviews
+        ),
     }
 
     gold_summary = {}
@@ -243,3 +250,184 @@ def run_gold_transformations(config: dict[str, Any]) -> dict[str, int]:
     print("Transformaciones Gold finalizadas correctamente.")
 
     return gold_summary
+
+
+def build_agg_sales_by_month(
+    orders: pd.DataFrame,
+    order_items: pd.DataFrame,
+) -> pd.DataFrame:
+    """Construye ventas agregadas por mes."""
+
+    sales = order_items.merge(
+        orders[["order_id", "order_purchase_timestamp", "order_status"]],
+        on="order_id",
+        how="left",
+    )
+
+    sales["year_month"] = sales["order_purchase_timestamp"].dt.strftime("%Y-%m")
+    sales["total_sales"] = sales["price"] + sales["freight_value"]
+
+    agg_sales_by_month = (
+        sales.groupby("year_month", as_index=False)
+        .agg(
+            total_orders=("order_id", "nunique"),
+            total_items=("order_item_id", "count"),
+            total_revenue=("price", "sum"),
+            total_freight=("freight_value", "sum"),
+            total_sales=("total_sales", "sum"),
+        )
+        .sort_values("year_month")
+    )
+
+    return agg_sales_by_month
+
+
+def build_agg_sales_by_category(
+    order_items: pd.DataFrame,
+    products: pd.DataFrame,
+) -> pd.DataFrame:
+    """Construye ventas agregadas por categorias de producto."""
+
+    sales = order_items.merge(
+        products[["product_id", "product_category_name_english"]],
+        on="product_id",
+        how="left",
+    )
+
+    sales["product_category_name_english"] = sales[
+        "product_category_name_english"
+    ].fillna("not_informed")
+
+    sales["total_sales"] = sales["price"] + sales["freight_value"]
+
+    agg_sales_by_category = (
+        sales.groupby("product_category_name_english", as_index=True)
+        .agg(
+            total_orders=("order_id", "nunique"),
+            total_items=("order_item_id", "count"),
+            total_revenue=("price", "sum"),
+            total_freight=("freight_value", "sum"),
+            total_sales=("total_sales", "sum"),
+            avg_item_price=("price", "mean"),
+        )
+        .sort_values("total_sales", ascending=False)
+    )
+
+    return agg_sales_by_category
+
+
+def build_agg_delivery_performance(orders: pd.DataFrame) -> pd.DataFrame:
+    """Construye métricas agregadas de desempeño de entregas."""
+
+    deliveries = orders[
+        [
+            "order_id",
+            "order_status",
+            "order_purchase_timestamp",
+            "order_delivered_customer_date",
+            "order_estimated_delivery_date",
+        ]
+    ].copy()
+
+    deliveries["delivery_days"] = (
+        deliveries["order_delivered_customer_date"]
+        - deliveries["order_purchase_timestamp"]
+    ).dt.days
+
+    deliveries["is_late_delivery"] = (
+        deliveries["order_delivered_customer_date"]
+        > deliveries["order_estimated_delivery_date"]
+    )
+
+    deliveries["year_month"] = deliveries["order_purchase_timestamp"].dt.strftime(
+        "%Y-%m"
+    )
+
+    agg_delivery_performance = (
+        deliveries.groupby("year_month", as_index=False)
+        .agg(
+            total_orders=("order_id", "nunique"),
+            delivered_orders=("order_delivered_customer_date", "count"),
+            avg_delivery_days=("delivery_days", "mean"),
+            late_deliveries=("is_late_delivery", "sum"),
+        )
+        .sort_values("year_month")
+    )
+
+    agg_delivery_performance["late_delivery_rate"] = (
+        agg_delivery_performance["late_deliveries"]
+        / agg_delivery_performance["delivered_orders"]
+    )
+
+    return agg_delivery_performance
+
+
+def build_agg_seller_performance(
+    order_items: pd.DataFrame,
+    sellers: pd.DataFrame,
+) -> pd.DataFrame:
+    """Construye métricas de desempeño por vendedor."""
+
+    seller_sales = order_items.merge(
+        sellers[["seller_id", "seller_city", "seller_state"]],
+        on="seller_id",
+        how="left",
+    )
+
+    seller_sales["total_sales"] = seller_sales["price"] + seller_sales["freight_value"]
+
+    agg_seller_performance = (
+        seller_sales.groupby(
+            ["seller_id", "seller_city", "seller_state"],
+            as_index=False,
+        )
+        .agg(
+            total_orders=("order_id", "nunique"),
+            total_items=("order_item_id", "count"),
+            total_revenue=("price", "sum"),
+            total_freight=("freight_value", "sum"),
+            total_sales=("total_sales", "sum"),
+            avg_items_price=("price", "mean"),
+        )
+        .sort_values("total_sales", ascending=False)
+    )
+
+    return agg_seller_performance
+
+
+def build_agg_customer_satisfaction(
+    orders: pd.DataFrame,
+    order_reviews: pd.DataFrame,
+) -> pd.DataFrame:
+    """Construye métricas de satisfacción del cliente por mes."""
+
+    reviews = order_reviews.merge(
+        orders[["order_id", "order_purchase_timestamp"]],
+        on="order_id",
+        how="left",
+    )
+
+    reviews["year_month"] = reviews["order_purchase_timestamp"].dt.strftime("%Y-%m")
+
+    agg_customer_satisfaction = (
+        reviews.groupby("year_month", as_index=False)
+        .agg(
+            total_reviews=("review_id", "nunique"),
+            avg_review_score=("review_score", "mean"),
+            low_score_reviews=("review_score", lambda score: (score <= 2).sum()),
+            high_score_reviews=("review_score", lambda score: (score >= 4).sum()),
+        )
+        .sort_values("year_month")
+    )
+
+    agg_customer_satisfaction["low_score_rate"] = (
+        agg_customer_satisfaction["low_score_reviews"]
+        / agg_customer_satisfaction["total_reviews"]
+    )
+
+    agg_customer_satisfaction["high_score_rate"] = (
+        agg_customer_satisfaction["high_score_reviews"]
+        / agg_customer_satisfaction["total_reviews"]
+    )
+
+    return agg_customer_satisfaction
