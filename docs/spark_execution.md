@@ -30,8 +30,6 @@ Para evitar dependencias específicas de Windows, se decidió ejecutar PySpark d
 ```text
 docker/Dockerfile.spark
 requirements-spark.txt
-run_spark_sample.py
-run_spark_gold_sample.py
 run_spark_pipeline.py
 src/spark/spark_session.py
 src/spark/spark_silver.py

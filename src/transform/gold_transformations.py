@@ -393,7 +393,7 @@ def build_agg_seller_performance(
             total_revenue=("price", "sum"),
             total_freight=("freight_value", "sum"),
             total_sales=("total_sales", "sum"),
-            avg_items_price=("price", "mean"),
+            avg_item_price=("price", "mean"),
         )
         .sort_values("total_sales", ascending=False)
     )

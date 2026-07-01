@@ -13,6 +13,7 @@ data/landing/*
 data/bronze/*
 data/silver/*
 data/gold/*
+data/spark/*
 
 # Outputs generados
 outputs/reports/*
