@@ -1,0 +1,6 @@
+project_name = "ecommerce"
+environment  = "dev"
+location     = "eastus"
+
+sql_admin_username = "sqladminuser"
+sql_admin_password = "replace-with-secure-password"

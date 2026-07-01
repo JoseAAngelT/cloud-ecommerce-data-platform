@@ -25,3 +25,9 @@ outputs/quality/*
 # Archivos temporales
 *.log
 .DS_Store
+
+#Archivos de Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
