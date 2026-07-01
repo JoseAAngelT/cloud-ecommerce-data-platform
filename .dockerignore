@@ -1,0 +1,9 @@
+.venv
+__pycache__
+.git
+.env
+
+data/
+outputs/
+
+dashboards/powerbi/*.pbix
