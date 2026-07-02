@@ -15,12 +15,12 @@ output "key_vault_name" {
 
 output "sql_server_name" {
   description = "Azure SQL Server name."
-  value       = azurerm_mssql_server.main.name
+  value       = var.enable_sql ? azurerm_mssql_server.main[0].name : null
 }
 
 output "sql_database_name" {
   description = "Azure SQL Database name."
-  value       = azurerm_mssql_database.main.name
+  value       = var.enable_sql ? azurerm_mssql_database.main[0].name : null
 }
 
 output "data_factory_name" {
